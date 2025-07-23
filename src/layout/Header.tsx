@@ -10,6 +10,7 @@ import {
   Sun,
   Moon,
 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 const Logo = () => (
   <div className="font-bold text-xl flex items-center gap-2">
@@ -38,6 +39,7 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
+  const [dashboardView, setDashboardView] = useState<"today" | "week" | "custom">("today");
 
   return (
     <header className="flex items-center justify-between px-4 pb-2 md:px-8 py-4 bg-gray-200 dark:bg-[#18181b] sticky top-0 z-20">
