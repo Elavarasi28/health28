@@ -11,7 +11,7 @@ interface BloodGlucoseProps {
 
 const BloodGlucose: React.FC<BloodGlucoseProps> = ({ glucoseData, barSize, CustomTooltip, CustomBar }) => (
   <div className="flex-1 min-w-0 mb-2 lg:mb-0">
-    <Card className="w-full h-80 px-2">
+    <Card className="w-full h-80 px-2 shadow-2xl hover:-translate-y-1 transition-all duration-200 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
       <CardHeader>
         <div className="flex items-center justify-between w-full">
           <CardTitle>Blood Glucose Trends</CardTitle>
@@ -30,21 +30,22 @@ const BloodGlucose: React.FC<BloodGlucoseProps> = ({ glucoseData, barSize, Custo
               barGap={8}
               barCategoryGap={30}
               barSize={barSize}
-              margin={{ left: 32, right: 16, top: 0, bottom: 0 }}
+              margin={{ left: 0, right: 0, top: 32, bottom: 0 }}
+              
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis
                 dataKey="time"
                 type="number"
-                domain={[6, 20]}
-                ticks={[6, 8, 10, 12, 14, 16, 18, 20]}
+                domain={[8, 20]}
+                ticks={[6.5,8, 10, 12, 14, 16, 18, 20]}
                 tick={{ fill: 'currentColor', fontSize: 14 }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
-                domain={[20, 120]}
-                ticks={[20, 60, 80, 100, 120]}
+                domain={[0, 120]}
+                ticks={[0, 20, 60, 80, 100, 120]}
                 tick={{ fill: 'currentColor', fontSize: 14 }}
                 axisLine={false}
                 tickLine={false}

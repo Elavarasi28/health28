@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { useTheme } from "./contexts/ThemeContext";
-import { Routes, Route } from "react-router-dom";
+
+import { Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
+import { AnimatePresence, motion } from "framer-motion";
 
 // Import modular components
 import Header from "./layout/Header";
@@ -36,6 +36,15 @@ type CareTeamMember = {
 };
 
 export default function App() {
+  // User state
+  const [user, setUser] = useState({ name: '', email: '', avatar: '' });
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [editForm, setEditForm] = useState({ name: '', email: '' });
+  const [editAvatar, setEditAvatar] = useState('');
+  const [toast, setToast] = useState('');
+
   // Removed unused destructured elements from useTheme
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -46,7 +55,6 @@ export default function App() {
     { name: "Aspirin", qty: "1 pill", dosage: "100 mg", status: "Taken", time: "09:00" },
     { name: "Atorvastatin", qty: "1 pill", dosage: "20 mg", status: "Upcoming", time: "21:00" },
   ]);
-  const [toast, setToast] = useState("");
   const [selectedMember, setSelectedMember] = useState<CareTeamMember | null>(null);
   const [showFitnessModal, setShowFitnessModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -58,22 +66,12 @@ export default function App() {
     careTeam: true,
     medicationSchedule: true,
   });
-  const [user, setUser] = useState({
-    name: '',
-    email: '',
-    avatar: '',
-  });
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [editingProfile, setEditingProfile] = useState(false);
-  const [editForm, setEditForm] = useState({ name: user.name, email: user.email });
-  const [editAvatar, setEditAvatar] = useState(user.avatar);
   const [showDateModal, setShowDateModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();
     return today.toISOString().slice(0, 10);
   });
   const [showCareTeamModal, setShowCareTeamModal] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: '', password: '', name: '' });
   const defaultAvatar = 'https://ui-avatars.com/api/?name=User&background=cccccc&color=555555';
 
@@ -92,10 +90,11 @@ export default function App() {
     { name: "Phillip Workman", role: "Neurologist", img: "https://randomuser.me/api/portraits/men/45.jpg" },
     { name: "Cheyenne Herwitz", role: "Cardiologist", img: "https://randomuser.me/api/portraits/women/65.jpg" },
     { name: "Ava Patel", role: "General Physician", img: "https://randomuser.me/api/portraits/women/68.jpg" },
-    { name: "Sophia Lee", role: "Nutritionist", img: "https://randomuser.me/api/portraits/women/50.jpg" },
+   
   ]);
 
   const width = useWindowWidth();
+  const location = useLocation();
 
   // Handle Take button
   const handleTake = (index: number) => {
@@ -122,15 +121,26 @@ export default function App() {
     setVisibleSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
-  // Update edit form when opening modal
+  // Open edit form with current user info
   useEffect(() => {
     if (showProfileModal && user.name) {
       setEditForm({ name: user.name, email: user.email });
       setEditAvatar(user.avatar);
       setEditingProfile(false);
     }
-  }, [showProfileModal, user.name, user.email, user.avatar]);
+  }, [showProfileModal, user]);
 
+  // Handle login
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setUser({ name: loginForm.name, email: loginForm.email, avatar: '' });
+    setShowLoginModal(false);
+    setShowProfileModal(true);
+    setToast('Logged in successfully!');
+    setTimeout(() => setToast(''), 2000);
+  };
+
+  // Handle logout
   const handleLogout = () => {
     setUser({ name: '', email: '', avatar: '' });
     setShowProfileModal(false);
@@ -140,7 +150,7 @@ export default function App() {
 
   return (
     <SidebarProvider>
-      <div className="h-screen w-screen overflow-hidden flex flex-col bg-gray-200 dark:bg-[#18181b]">
+      <div className="h-screen w-screen overflow-hidden flex flex-col bg-gray-100 dark:bg-[#252545]">
         {/* Header */}
         <Header
           sidebarOpen={sidebarOpen}
@@ -150,12 +160,16 @@ export default function App() {
           selectedDate={selectedDate}
           setShowCustomizeModal={setShowCustomizeModal}
           setShowDateModal={setShowDateModal}
+          showCustomizeModal={showCustomizeModal}
+          visibleSections={visibleSections}
+          handleSectionToggle={handleSectionToggle}
         />
 
         <div className="flex flex-1 flex-col md:flex-row overflow-hidden bg-sidebar">
           {/* Sidebar */}
           <Sidebar
             sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             user={user}
@@ -166,31 +180,44 @@ export default function App() {
 
           {/* Main Content */}
           <main className="flex-1 p-2 sm:p-4 md:p-6 overflow-y-auto space-y-2 bg-gray-200 dark:bg-[#18181b]">
-            <Routes>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -30 }}
+                transition={{ duration: 0.3 }}
+                style={{ height: "100%" }} // optional, helps with layout
+              >
+                <Routes location={location} key={location.pathname}>
               <Route path="/dashboard" element={
-                <DashboardPage
-                  user={user}
-                  medications={medications}
-                  careTeam={careTeam}
-                  searchValue={searchValue}
-                  visibleSections={visibleSections}
-                  setShowFitnessModal={setShowFitnessModal}
-                  setShowScheduleModal={setShowScheduleModal}
-                  setShowCareTeamModal={setShowCareTeamModal}
-                  setSelectedMember={setSelectedMember}
-                  handleTake={handleTake}
-                  handleSectionToggle={handleSectionToggle}
-                  width={width}
-                />
-              } />
-              <Route path="/medications" element={<MedicationsPage />} />
-              <Route path="/challenges" element={<ChallengesPage />} />
-              <Route path="/health-insights" element={<HealthInsightsPage />} />
-              <Route path="/appointments" element={<AppointmentsPage />} />
-              <Route path="/notifications" element={<NotificationsPage />} />
-              
+                    <DashboardPage
+                      user={user}
+                      setShowScheduleModal={setShowScheduleModal}
+                      medications={medications}
+                      careTeam={careTeam}
+                      searchValue={searchValue}
+                      visibleSections={visibleSections}
+                      setShowFitnessModal={setShowFitnessModal}
+                      setShowCareTeamModal={setShowCareTeamModal}
+                      setSelectedMember={setSelectedMember}
+                      handleTake={handleTake}
+                      handleSectionToggle={handleSectionToggle}
+                      width={width}
+
+                      showScheduleModal={showScheduleModal}
+                    />
+                  } />
+                  <Route path="/medications" element={<MedicationsPage />} />
+                  <Route path="/challenges" element={<ChallengesPage />} />
+                  <Route path="/health-insights" element={<HealthInsightsPage />} />
+                  <Route path="/appointments" element={<AppointmentsPage />} />
+                  <Route path="/notifications" element={<NotificationsPage />} />
+                  
               <Route path="*" element={<div className="p-8 text-2xl">Welcome! Please select a section from the sidebar.</div>} />
             </Routes>
+              </motion.div>
+            </AnimatePresence>
           </main>
         </div>
 
@@ -201,13 +228,63 @@ export default function App() {
           </div>
         )}
 
+        {/* Login Modal */}
+        <AnimatePresence>
+        {showLoginModal && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+          >
+            <motion.form
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="bg-card text-card-foreground rounded-lg p-6 shadow-lg min-w-[320px] w-full max-w-xs border flex flex-col gap-3"
+              onSubmit={handleLogin}
+            >
+              <div className="font-bold text-lg mb-2 text-center">Login Required</div>
+              <input
+                type="text"
+                placeholder="Profile Name"
+                className="border rounded px-2 py-2"
+                value={loginForm.name}
+                onChange={e => setLoginForm(f => ({ ...f, name: e.target.value }))}
+                required
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                className="border rounded px-2 py-2"
+                value={loginForm.email}
+                onChange={e => setLoginForm(f => ({ ...f, email: e.target.value }))}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                className="border rounded px-2 py-2"
+                value={loginForm.password}
+                onChange={e => setLoginForm(f => ({ ...f, password: e.target.value }))}
+                required
+              />
+              <button type="submit" className="bg-black text-white py-2 rounded">Login</button>
+              <button type="button" className="bg-gray-100 py-2 rounded" onClick={() => setShowLoginModal(false)}>Close</button>
+            </motion.form>
+          </motion.div>
+        )}
+        </AnimatePresence>
+
         {/* Profile Modal */}
         {showProfileModal && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
             <div className="bg-card text-card-foreground rounded-lg p-6 shadow-lg min-w-[320px] w-full max-w-xs border">
               <div className="flex flex-col items-center">
                 <img
-                  src={editingProfile ? editAvatar : user.avatar}
+                  src={editingProfile ? editAvatar : user.avatar || `https://ui-avatars.com/api/?name=${user.name || 'User'}`}
                   alt={user.name}
                   className="w-20 h-20 rounded-full object-cover mb-2"
                 />
@@ -305,19 +382,35 @@ export default function App() {
               <div className="font-bold text-lg mb-2">Customize Dashboard</div>
               <div className="flex flex-col gap-3">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={visibleSections.fitnessGoals} onChange={() => handleSectionToggle('fitnessGoals')} />
+                  <input
+                    type="checkbox"
+                    checked={visibleSections.fitnessGoals}
+                    onChange={() => handleSectionToggle('fitnessGoals')}
+                  />
                   Fitness Goals
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={visibleSections.glucoseTrends} onChange={() => handleSectionToggle('glucoseTrends')} />
+                  <input
+                    type="checkbox"
+                    checked={visibleSections.glucoseTrends}
+                    onChange={() => handleSectionToggle('glucoseTrends')}
+                  />
                   Blood Glucose Trends
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={visibleSections.careTeam} onChange={() => handleSectionToggle('careTeam')} />
+                  <input
+                    type="checkbox"
+                    checked={visibleSections.careTeam}
+                    onChange={() => handleSectionToggle('careTeam')}
+                  />
                   My Care Team
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={visibleSections.medicationSchedule} onChange={() => handleSectionToggle('medicationSchedule')} />
+                  <input
+                    type="checkbox"
+                    checked={visibleSections.medicationSchedule}
+                    onChange={() => handleSectionToggle('medicationSchedule')}
+                  />
                   Medication Schedule
                 </label>
                 <div className="flex gap-2 mt-4">

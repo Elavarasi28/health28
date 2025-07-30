@@ -10,7 +10,7 @@ interface HealthHeaderProps {
 
 const Health: React.FC<HealthHeaderProps> = ({ compare, setCompare, dateRange, setDateRange }) => (
   <div className="mb-2">
-    <h1 className="text-2xl font-bold mb-2">Health Insights</h1>
+    <h1 className="text-2xl font-bold mb-2 ">Health Insights</h1>
     <div className="flex flex-col md:flex-row md:items-center gap-4 w-full max-w-full min-w-0 overflow-x-hidden">
       <Tabs value={compare} onValueChange={setCompare} className="w-full md:w-auto">
         <TabsList>

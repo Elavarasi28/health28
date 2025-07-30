@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 
 const NotificationsPage = () => {
   type NotificationType = "Medication" | "Appointments" | "Challenge" | "System";
@@ -21,6 +23,13 @@ const NotificationsPage = () => {
   ]);
   const [notifFilter, setNotifFilter] = useState<string>("All");
   const [settings, setSettings] = useState<{ [key: string]: boolean }>({ Medication: true, Appointments: true, Challenge: true, System: true });
+  const [toast, setToast] = useState("");
+
+  const playNotificationSound = () => {
+    try {
+      new Audio('/public/preview.mp3').play();
+    } catch (e) {}
+  };
 
   const filtered = notifications.filter(n =>
     (notifFilter === "All" || n.type === notifFilter) && settings[n.type]
@@ -30,8 +39,46 @@ const NotificationsPage = () => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: !n.read } : n));
   };
 
+  const sampleTitles = [
+    "System Update",
+    "Welcome to ARMED!",
+    "Profile Changed",
+    "Security Alert",
+    "New Feature Released",
+    "Backup Completed"
+  ];
+  const sampleDescs = [
+    "Your system was updated successfully.",
+    "Thank you for joining our platform!",
+    "Your profile information has been changed.",
+    "A new login was detected from a different device.",
+    "Check out the latest features in your dashboard.",
+    "Your data backup finished without issues."
+  ];
+
   const handleMarkAllRead = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    setToast("All notifications marked as read!");
+    // Add a sample notification
+    setTimeout(() => {
+      const randomTitle = sampleTitles[Math.floor(Math.random() * sampleTitles.length)];
+      const randomDesc = sampleDescs[Math.floor(Math.random() * sampleDescs.length)];
+      setNotifications(prev => [
+        {
+          id: Date.now(),
+          type: "System",
+          title: randomTitle,
+          desc: randomDesc,
+          read: false,
+          time: "Just now"
+        },
+        ...prev
+      ]);
+      setToast("New notification received!");
+      playNotificationSound();
+      setTimeout(() => setToast(""), 2000);
+    }, 1000);
+    setTimeout(() => setToast(""), 2000);
   };
 
   const handleSettingChange = (type: string) => {
@@ -39,9 +86,15 @@ const NotificationsPage = () => {
   };
 
   const types: NotificationType[] = ["Medication", "Appointments", "Challenge", "System"];
+  const typeIcons: { [key in NotificationType]: string } = {
+    Medication: "💊",
+    Appointments: "📅",
+    Challenge: "🏃",
+    System: "⚙️"
+  };
 
   return (
-    <div className="p-4 max-w-2xl mx-auto space-y-6">
+    <div className="p-4 w-full max-w-6xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Notifications</h1>
         <button className="bg-primary text-primary-foreground px-4 py-2 rounded shadow hover:bg-primary/90" onClick={handleMarkAllRead}>Mark all as read</button>
@@ -59,27 +112,44 @@ const NotificationsPage = () => {
         ))}
       </div>
       {/* Notification List */}
-      <div className="bg-card rounded-lg shadow p-4">
-        {filtered.length === 0 ? <div className="text-muted-foreground">No notifications.</div> : (
+      <div className="bg-card rounded-lg shadow p-2 w-full">
+        {filtered.length === 0 ? (
+          <div className="text-muted-foreground">No notifications.</div>
+        ) : (
           <ul className="divide-y">
-            {filtered.map(n => (
-              <li key={n.id} className="flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-2">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className={`inline-block w-2 h-2 rounded-full ${n.read ? "bg-gray-400" : "bg-orange-500"}`}></span>
-                    <span className="font-semibold text-base truncate">{n.title}</span>
-                    <span className="ml-2 text-xs text-muted-foreground">[{n.type}]</span>
+            <AnimatePresence mode="popLayout">
+              {filtered.map(n => (
+                <motion.li
+                  key={n.id}
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -40 }}
+                  transition={{ duration: 0.3 }}
+                  layout
+                  className="flex w-full items-stretch justify-between py-3 gap-2 rounded-lg transition-all border border-transparent hover:border-primary/40 hover:shadow-md hover:bg-gray-100 bg-white dark:bg-card px-4"
+                >
+                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{typeIcons[n.type]}</span>
+                      <span className={`inline-block w-2 h-2 rounded-full ${n.read ? "bg-gray-400" : "bg-orange-500"}`}></span>
+                      <span className="font-semibold text-base truncate text-left">{n.title}</span>
+                      <span className="ml-2 text-xs text-muted-foreground">[{n.type}]</span>
+                    </div>
+                    <div className="text-sm text-muted-foreground truncate text-left">{n.desc}</div>
                   </div>
-                  <div className="text-sm text-muted-foreground truncate">{n.desc}</div>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">{n.time}</span>
-                  <button className={`text-xs px-2 py-1 rounded ${n.read ? "bg-muted text-muted-foreground" : "bg-orange-100 text-orange-700"}`} onClick={() => handleToggleRead(n.id)}>
-                    {n.read ? "Mark Unread" : "Mark Read"}
-                  </button>
-                </div>
-              </li>
-            ))}
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">{n.time}</span>
+                    <button
+                      className={`text-lg px-2 py-1 rounded-full border-none bg-transparent hover:bg-orange-100 hover:scale-110 transition-transform duration-150 ${n.read ? "text-gray-400" : "text-orange-500"}`}
+                      onClick={() => handleToggleRead(n.id)}
+                      title={n.read ? "Mark as Unread" : "Mark as Read"}
+                    >
+                      {n.read ? "🔕" : "🔔"}
+                    </button>
+                  </div>
+                </motion.li>
+              ))}
+            </AnimatePresence>
           </ul>
         )}
       </div>
@@ -95,6 +165,19 @@ const NotificationsPage = () => {
           ))}
         </div>
       </div>
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            transition={{ duration: 0.4 }}
+            className="fixed bottom-6 right-6 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50"
+          >
+            {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

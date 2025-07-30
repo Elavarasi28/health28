@@ -69,45 +69,47 @@ const Today: React.FC<TodayProps> = ({ getTodayMedications, handleTakeMedication
     <div className="grid gap-4">
       {getTodayMedications().map((med, index) => (
         <Card key={`${med.id}-${med.time}`} className="p-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-2">
-            <div className="flex items-center space-x-4">
-              <div className="p-2 bg-primary/10 rounded-lg">
+          <div className="flex items-center justify-between w-full gap-4">
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+              <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
                 <Pill className="w-6 h-6 text-primary" />
               </div>
-              <div>
-                <h3 className="font-semibold text-foreground">{med.name}</h3>
-                <p className="text-sm text-muted-foreground">{med.dosage} • {med.time}</p>
-                <p className="text-xs text-muted-foreground">{med.instructions}</p>
+              <div className="flex flex-col min-w-0 text-left">
+                <h3 className="font-semibold text-foreground truncate text-left">{med.name}</h3>
+                <div className="flex flex-row gap-2 text-sm text-muted-foreground text-left">
+                  <span>{med.dosage}</span>
+                  <span>•</span>
+                  <span>{med.time}</span>
+                </div>
+                <p className="text-xs text-muted-foreground truncate text-left">{med.instructions}</p>
               </div>
             </div>
-            <div className="flex flex-row sm:flex-row gap-2 w-full sm:w-auto justify-center sm:justify-start mt-2 sm:mt-0 mx-auto">
-              {med.status === 'pending' && (
-                <div className="flex space-x-1">
-                  <Button
-                    size="sm"
-                    onClick={() => handleTakeMedication(med.id, med.time)}
-                    className="bg-green-500 hover:bg-green-600 text-white"
-                  >
-                    Take
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleSkipMedication(med.id, med.time)}
-                  >
-                    Skip
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleMissedMedication(med.id, med.time)}
-                    className="text-red-600 border-red-600 hover:bg-red-50"
-                  >
-                    Missed
-                  </Button>
-                </div>
-              )}
-            </div>
+            {med.status === 'pending' && (
+              <div className="flex flex-row gap-2 min-w-[220px] justify-center">
+                <Button
+                  size="sm"
+                  onClick={() => handleTakeMedication(med.id, med.time)}
+                  className="bg-green-500 hover:bg-green-600 text-white"
+                >
+                  Take
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleSkipMedication(med.id, med.time)}
+                >
+                  Skip
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleMissedMedication(med.id, med.time)}
+                  className="text-red-600 border-red-600 hover:bg-red-50"
+                >
+                  Missed
+                </Button>
+              </div>
+            )}
           </div>
         </Card>
       ))}

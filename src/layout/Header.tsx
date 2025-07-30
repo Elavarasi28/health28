@@ -26,6 +26,14 @@ interface HeaderProps {
   selectedDate: string;
   setShowCustomizeModal: (show: boolean) => void;
   setShowDateModal: (show: boolean) => void;
+  showCustomizeModal: boolean;
+  visibleSections: {
+    fitnessGoals: boolean;
+    glucoseTrends: boolean;
+    careTeam: boolean;
+    medicationSchedule: boolean;
+  };
+  handleSectionToggle: (section: "fitnessGoals" | "glucoseTrends" | "careTeam" | "medicationSchedule") => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -36,6 +44,9 @@ const Header: React.FC<HeaderProps> = ({
   selectedDate,
   setShowCustomizeModal,
   setShowDateModal,
+  showCustomizeModal,
+  visibleSections,
+  handleSectionToggle,
 }) => {
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
@@ -60,6 +71,12 @@ const Header: React.FC<HeaderProps> = ({
             className="w-full pl-10 pr-8 h-10 text-base rounded-lg border border-gray-500 focus:ring-2 focus:ring-orange-200"
             value={searchValue}
             onChange={e => setSearchValue(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                alert(`Searching for: ${searchValue}`);
+                // Here you could trigger a real search or navigation
+              }
+            }}
           />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
           {searchValue && (
@@ -72,11 +89,16 @@ const Header: React.FC<HeaderProps> = ({
               &#10005;
             </button>
           )}
+          
         </div>
       </div>
       <div className="hidden md:flex items-center gap-6">
         {location.pathname === '/dashboard' && (
-          <Button variant="ghost" className="flex items-center gap-2" onClick={() => setShowCustomizeModal(true)}>
+          <Button
+            variant="ghost"
+            className="flex items-center gap-2"
+            onClick={() => setShowCustomizeModal(true)}
+          >
             <LayoutDashboard size={18} />
             Customize Dashboard
           </Button>
@@ -93,11 +115,39 @@ const Header: React.FC<HeaderProps> = ({
           size="icon"
           className="flex items-center justify-center"
           onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+          aria-label={`Switch to ${theme === 'light' ? 'dark'  : 'light'}  mode`}
         >
           {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
         </Button>
       </div>
+
+      {showCustomizeModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 shadow-lg min-w-[320px] w-full max-w-xs border">
+            <div className="font-bold text-lg mb-2">Customize Dashboard</div>
+            <div className="flex flex-col gap-3">
+              <label>
+                <input type="checkbox" checked={visibleSections.fitnessGoals} onChange={() => handleSectionToggle("fitnessGoals")} />
+                Fitness Goals
+              </label>
+              <label>
+                <input type="checkbox" checked={visibleSections.glucoseTrends} onChange={() => handleSectionToggle("glucoseTrends")} />
+                Blood Glucose Trends
+              </label>
+              <label>
+                <input type="checkbox" checked={visibleSections.careTeam} onChange={() => handleSectionToggle("careTeam")} />
+                My Care Team
+              </label>
+              <label>
+                <input type="checkbox" checked={visibleSections.medicationSchedule} onChange={() => handleSectionToggle("medicationSchedule")} />
+                Medication Schedule
+              </label>
+              <button onClick={() => setShowCustomizeModal(false)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+      
     </header>
   );
 };

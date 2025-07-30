@@ -8,7 +8,7 @@ interface StepsProps {
 }
 
 const Steps: React.FC<StepsProps> = ({ stepsData, barSize }) => (
-  <Card className="h-80 flex flex-col w-full min-w-0">
+  <Card className="h-80 flex flex-col w-full min-w-0  shadow-xl hover:-translate-y-1 transition-all duration-200 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
     <CardHeader>
       <CardTitle>Steps</CardTitle>
     </CardHeader>

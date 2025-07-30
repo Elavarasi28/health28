@@ -11,6 +11,7 @@ import {
   Bell,
   Pill,
 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 type Medication = {
   id: string;
@@ -268,29 +269,23 @@ const MedicationsPage = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex space-x-1 bg-muted p-1 rounded-lg">
+      <div className="flex space-x-1 bg-muted p-1 rounded-lg my-4">
         <button
           onClick={() => setActiveTab('today')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-            activeTab === 'today' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-          }`}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'today' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
         >
           Today's Medications
         </button>
         <button
           onClick={() => setActiveTab('history')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-            activeTab === 'history' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-          }`}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'history' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
         >
           <History className="w-4 h-4 mr-2 inline" />
           History
         </button>
         <button
           onClick={() => setActiveTab('reminders')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-            activeTab === 'reminders' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-          }`}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'reminders' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
         >
           <Bell className="w-4 h-4 mr-2 inline" />
           Reminders
@@ -298,180 +293,208 @@ const MedicationsPage = () => {
       </div>
 
       {/* Content */}
-      {activeTab === 'today' && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-foreground">Today's Medications</h2>
-          
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <Card className="p-4">
-              <div className="flex items-center space-x-2">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Pill className="w-4 h-4 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Today</p>
-                  <p className="text-xl font-bold text-foreground">{getTodayMedications().length}</p>
-                </div>
-              </div>
-            </Card>
-            <Card className="p-4">
-              <div className="flex items-center space-x-2">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Taken</p>
-                  <p className="text-xl font-bold text-green-600">
-                    {getTodayMedications().filter(med => med.status === 'taken').length}
-                  </p>
-                </div>
-              </div>
-            </Card>
-            <Card className="p-4">
-              <div className="flex items-center space-x-2">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <XCircle className="w-4 h-4 text-red-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Missed</p>
-                  <p className="text-xl font-bold text-red-600">
-                    {getTodayMedications().filter(med => med.status === 'missed').length}
-                  </p>
-                </div>
-              </div>
-            </Card>
-            <Card className="p-4">
-              <div className="flex items-center space-x-2">
-                <div className="p-2 bg-yellow-100 rounded-lg">
-                  <Clock className="w-4 h-4 text-yellow-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Pending</p>
-                  <p className="text-xl font-bold text-yellow-600">
-                    {getTodayMedications().filter(med => med.status === 'pending').length}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </div>
-          <div className="grid gap-4">
-            {getTodayMedications().map((med, index) => (
-              <Card key={`${med.id}-${med.time}`} className="p-4">
-                <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-2">
-                  <div className="flex items-center space-x-4">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Pill className="w-6 h-6 text-primary" />
+      <AnimatePresence mode="wait">
+        {activeTab === 'today' && (
+          <motion.div
+            key="today"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold text-foreground">Today's Medications</h2>
+              
+              {/* Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <Card className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Pill className="w-4 h-4 text-blue-600" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground">{med.name}</h3>
-                      <p className="text-sm text-muted-foreground">{med.dosage} • {med.time}</p>
-                      <p className="text-xs text-muted-foreground">{med.instructions}</p>
+                      <p className="text-sm text-muted-foreground">Total Today</p>
+                      <p className="text-xl font-bold text-foreground">{getTodayMedications().length}</p>
                     </div>
                   </div>
-                  <div className="flex flex-row sm:flex-row gap-2 w-full sm:w-auto justify-center sm:justify-start mt-2 sm:mt-0 mx-auto">
-                    {med.status === 'pending' && (
-                      <div className="flex space-x-1">
-                        <Button
-                          size="sm"
-                          onClick={() => handleTakeMedication(med.id, med.time)}
-                          className="bg-green-500 hover:bg-green-600 text-white"
-                        >
-                          Take
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleSkipMedication(med.id, med.time)}
-                        >
-                          Skip
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleMissedMedication(med.id, med.time)}
-                          className="text-red-600 border-red-600 hover:bg-red-50"
-                        >
-                          Missed
-                        </Button>
+                </Card>
+                <Card className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Taken</p>
+                      <p className="text-xl font-bold text-green-600">
+                        {getTodayMedications().filter(med => med.status === 'taken').length}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+                <Card className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="p-2 bg-red-100 rounded-lg">
+                      <XCircle className="w-4 h-4 text-red-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Missed</p>
+                      <p className="text-xl font-bold text-red-600">
+                        {getTodayMedications().filter(med => med.status === 'missed').length}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+                <Card className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="p-2 bg-yellow-100 rounded-lg">
+                      <Clock className="w-4 h-4 text-yellow-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Pending</p>
+                      <p className="text-xl font-bold text-yellow-600">
+                        {getTodayMedications().filter(med => med.status === 'pending').length}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+              <div className="grid gap-4">
+                {getTodayMedications().map((med, index) => (
+                  <Card key={`${med.id}-${med.time}`} className="p-4">
+                    <div className="flex flex-col sm:flex-row items-center w-full gap-2 sm:gap-0">
+                      {/* Info section */}
+                      <div className="flex items-center gap-4 flex-1 min-w-0 w-full">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <Pill className="w-6 h-6 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-foreground">{med.name}</h3>
+                          <p className="text-sm text-muted-foreground">{med.dosage} • {med.time}</p>
+                          <p className="text-xs text-muted-foreground">{med.instructions}</p>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
+                      {/* Button group */}
+                      <div className="flex flex-row gap-2 justify-end items-center w-full sm:w-56 ml-0 sm:ml-4">
+                        {med.status === 'pending' && (
+                          <div className="flex space-x-1">
+                            <Button
+                              size="sm"
+                              onClick={() => handleTakeMedication(med.id, med.time)}
+                              className="bg-green-500 hover:bg-green-600 text-white"
+                            >
+                              Take
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleSkipMedication(med.id, med.time)}
+                            >
+                              Skip
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleMissedMedication(med.id, med.time)}
+                              className="text-red-600 border-red-600 hover:bg-red-50"
+                            >
+                              Missed
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
 
-      {activeTab === 'history' && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-foreground">Medication History</h2>
-          <div className="space-y-2">
-            {medicationLogs.slice().reverse().map((log) => {
-              const medication = medications.find(med => med.id === log.medicationId);
-              return (
-                <Card key={log.id} className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-foreground">{medication?.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(log.date).toLocaleDateString()} at {log.time}
-                      </p>
-                      {log.notes && <p className="text-xs text-muted-foreground">{log.notes}</p>}
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      {getStatusIcon(log.status)}
-                      <span className={`text-sm font-medium ${
-                        log.status === 'taken' ? 'text-green-600' :
-                        log.status === 'missed' ? 'text-red-600' :
-                        'text-yellow-600'
-                      }`}>
-                        {getStatusText(log.status)}
-                      </span>
-                    </div>
-                  </div>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      )}
+        {activeTab === 'history' && (
+          <motion.div
+            key="history"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold text-foreground">Medication History</h2>
+              <div className="space-y-2">
+                {medicationLogs.slice().reverse().map((log) => {
+                  const medication = medications.find(med => med.id === log.medicationId);
+                  return (
+                    <Card key={log.id} className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-semibold text-foreground">{medication?.name}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(log.date).toLocaleDateString()} at {log.time}
+                          </p>
+                          {log.notes && <p className="text-xs text-muted-foreground">{log.notes}</p>}
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {getStatusIcon(log.status)}
+                          <span className={`text-sm font-medium ${
+                            log.status === 'taken' ? 'text-green-600' :
+                            log.status === 'missed' ? 'text-red-600' :
+                            'text-yellow-600'
+                          }`}>
+                            {getStatusText(log.status)}
+                          </span>
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
+        )}
 
-      {activeTab === 'reminders' && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-foreground">Medication Reminders</h2>
-          <div className="grid gap-4">
-            {reminders.map((reminder) => {
-              const medication = medications.find(med => med.id === reminder.medicationId);
-              return (
-                <Card key={reminder.id} className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-foreground">{medication?.name}</h3>
-                      <p className="text-sm text-muted-foreground">{reminder.time}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {reminder.days.join(', ')}
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleToggleReminder(reminder.id)}
-                        className={`w-3 h-3 rounded-full transition-colors ${
-                          reminder.isActive ? 'bg-green-500' : 'bg-gray-400'
-                        }`}
-                      />
-                      <span className="text-sm text-muted-foreground">
-                        {reminder.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </div>
-                  </div>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      )}
+        {activeTab === 'reminders' && (
+          <motion.div
+            key="reminder"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold text-foreground">Medication Reminders</h2>
+              <div className="grid gap-4">
+                {reminders.map((reminder) => {
+                  const medication = medications.find(med => med.id === reminder.medicationId);
+                  return (
+                    <Card key={reminder.id} className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-semibold text-foreground">{medication?.name}</h3>
+                          <p className="text-sm text-muted-foreground">{reminder.time}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {reminder.days.join(', ')}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleToggleReminder(reminder.id)}
+                            className={`w-3 h-3 rounded-full transition-colors ${
+                              reminder.isActive ? 'bg-green-500' : 'bg-gray-400'
+                            }`}
+                          />
+                          <span className="text-sm text-muted-foreground">
+                            {reminder.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Add Medication Modal */}
       {showAddModal && (

@@ -5,6 +5,7 @@ import HeartRate from "./healthinsights/HeartRate";
 import Sleep from "./healthinsights/Sleep";
 import Steps from "./healthinsights/Steps";
 import AI from "./healthinsights/AI";
+import { motion } from "framer-motion";
 
 // Responsive window width hook
 function useWindowWidth() {
@@ -69,17 +70,57 @@ const HealthInsightsPage = () => {
     "Step count peaked on Saturday!"
   ];
 
+  // Props: searchValue
+  const insightCards = [
+    { key: "blood", label: "Blood Glucose" },
+    { key: "heart", label: "Heart Rate" },
+    { key: "sleep", label: "Sleep" },
+    { key: "steps", label: "Steps" }
+  ];
+
+  
+
   return (
     <div className="p-4 space-y-6 max-w-7xl mx-auto w-full max-w-full min-w-0 overflow-x-hidden">
       <Health compare={compare} setCompare={setCompare} dateRange={dateRange} setDateRange={setDateRange} />
       {/* Graphs */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-full min-w-0 overflow-x-hidden">
-        <Blood glucoseData={glucoseData} barSize={barSize} />
-        <HeartRate heartRateData={heartRateData} lineStroke={lineStroke} />
-        <Sleep sleepData={sleepData} lineStroke={lineStroke} />
-        <Steps stepsData={stepsData} barSize={barSize} />
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+        >
+          <Blood glucoseData={glucoseData} barSize={barSize} />
+        </motion.div>
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+        >
+          <HeartRate heartRateData={heartRateData} lineStroke={lineStroke} />
+        </motion.div>
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.25 }}
+        >
+          <Sleep sleepData={sleepData} lineStroke={lineStroke} />
+        </motion.div>
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.35 }}
+        >
+          <Steps stepsData={stepsData} barSize={barSize} />
+        </motion.div>
       </div>
-      <AI aiInsights={aiInsights} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.5 }}
+      >
+        <AI aiInsights={aiInsights} />
+      </motion.div>
     </div>
   );
 };

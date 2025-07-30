@@ -27,8 +27,8 @@ const LeaderboardTab: React.FC<LeaderboardTabProps> = ({ leaderboard }) => (
               </div>
               <img src={entry.avatar} alt={entry.name} className="w-10 h-10 rounded-full" />
               <div>
-                <div className="font-medium text-foreground">{entry.name}</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="font-medium text-foreground text-left">{entry.name}</div>
+                <div className="text-sm text-muted-foreground text-left">
                   {entry.challengesCompleted} challenges completed
                 </div>
               </div>

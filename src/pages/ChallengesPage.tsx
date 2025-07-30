@@ -6,6 +6,7 @@ import LeaderboardTab from "./challenges/Leaderboard";
 import { Target, Award, Users, Activity, Zap, Heart, Star, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { AnimatePresence, motion } from "framer-motion";
 
 type Challenge = {
   id: string;
@@ -289,23 +290,49 @@ const ChallengesPage = () => {
         </button>
       </div>
       {/* Content */}
-      {activeTab === 'challenges' && (
-        <ChallengeTab
-          challenges={challenges}
-          handleJoinChallenge={handleJoinChallenge}
-          handleLeaveChallenge={handleLeaveChallenge}
-          handleUpdateProgress={handleUpdateProgress}
-          getProgressPercentage={getProgressPercentage}
-          getDifficultyColor={getDifficultyColor}
-          getTypeColor={getTypeColor}
-        />
-      )}
-      {activeTab === 'badges' && (
-        <BadgesTab badges={badges} />
-      )}
-      {activeTab === 'leaderboard' && (
-        <LeaderboardTab leaderboard={leaderboard} />
-      )}
+      <AnimatePresence mode="wait">
+        {activeTab === 'challenges' && (
+          <motion.div
+            key="challenges"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ duration: 0.3 }}
+          >
+            <ChallengeTab
+              challenges={challenges}
+              handleJoinChallenge={handleJoinChallenge}
+              handleLeaveChallenge={handleLeaveChallenge}
+              handleUpdateProgress={handleUpdateProgress}
+              getProgressPercentage={getProgressPercentage}
+              getDifficultyColor={getDifficultyColor}
+              getTypeColor={getTypeColor}
+            />
+          </motion.div>
+        )}
+        {activeTab === 'badges' && (
+          <motion.div
+            key="badges"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ duration: 0.3 }}
+          >
+            <BadgesTab badges={badges} />
+          </motion.div>
+        )}
+        {activeTab === 'leaderboard' && (
+          <motion.div
+            key="leaderboard"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ duration: 0.3 }}
+          >
+            <LeaderboardTab leaderboard={leaderboard} />
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Toast notification */}
       {toast && (
         <div className="fixed bottom-6 right-6 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50 transition">

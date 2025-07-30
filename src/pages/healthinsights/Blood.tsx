@@ -8,7 +8,7 @@ interface BloodProps {
 }
 
 const Blood: React.FC<BloodProps> = ({ glucoseData, barSize }) => (
-  <Card className="h-80 flex flex-col w-full min-w-0">
+  <Card className="h-80 flex flex-col w-full min-w-0 w-full h-80 px-2 shadow-xl hover:-translate-y-1 transition-all duration-200 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
     <CardHeader>
       <CardTitle>Blood Glucose</CardTitle>
     </CardHeader>
