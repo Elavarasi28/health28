@@ -64,8 +64,8 @@ const MyCareTeam: React.FC<MyCareTeamProps> = ({
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="flex-1 overflow-hidden">
-          <ul className="space-y-3 h-full flex flex-col justify-start overflow-y-auto">
+        <CardContent className="flex-1">
+          <ul className="space-y-3">
             {team.slice(0, -1).map((member) => (
               <li
                 key={member.name}
