@@ -1,76 +1,161 @@
 import React, { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface AIProps {
-  aiInsights: string[];
-}
-
-const compareTabs = ["Today", "Yesterday"];
-
-const todayInsights = [
-  "Your sugar spiked after lunch consistently this week.",
-  "You sleep longer on weekends.",
-  "Heart rate is slightly higher on Fridays.",
-  "Step count peaked on Saturday!"
+const insights = [
+  {
+    icon: "🍚",
+    title: "Sugar Spike",
+    summary: "After lunch this week",
+    details: "Your blood sugar spiked by 30% after lunch. Recommendation: Try a lighter lunch and monitor your intake.",
+    gradient: "from-[#fceabb] to-[#f8b500]"
+  },
+  {
+    icon: "😴",
+    title: "Sleep Trend",
+    summary: "Longer on weekends",
+    details: "You sleep 1.5 hours longer on weekends. Try to keep a consistent sleep schedule for better rest.",
+    gradient: "from-[#c2e9fb] to-[#81a4fd]"
+  },
+  {
+    icon: "❤️",
+    title: "Heart Rate",
+    summary: "Higher on Fridays",
+    details: "Your average heart rate is 8 bpm higher on Fridays. Consider stress-reducing activities.",
+    gradient: "from-[#fbc2eb] to-[#a6c1ee]"
+  },
+  {
+    icon: "👟",
+    title: "Step Peak",
+    summary: "Saturday steps peaked",
+    details: "You reached 9,200 steps on Saturday. Great job! Aim for 8,000+ steps daily.",
+    gradient: "from-[#f5f7fa] to-[#c3cfe2]"
+  },
 ];
 
-const yesterdayInsights = [
-  "You skipped your evening walk yesterday.",
-  "Water intake was below average.",
-  "You went to bed later than usual.",
-  "Heart rate was steady throughout the day."
-];
+const FlipCard = ({ icon, title, summary, details, gradient, flipped, setFlipped, animateKey, direction }: any) => (
+  <motion.div
+    key={animateKey}
+    className="w-full h-56 cursor-pointer"
+    onClick={() => setFlipped((f: boolean) => !f)}
+    tabIndex={0}
+    onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setFlipped((f: boolean) => !f)}
+    aria-label={`Flip card for ${title}`}
+    initial={{ opacity: 0, x: direction > 0 ? 300 : -300 }}
+    animate={{ opacity: 1, x: 0 }}
+    exit={{ opacity: 0, x: direction > 0 ? -300 : 300 }}
+    transition={{ duration: 0.5, ease: "easeInOut" }}
+  >
+    <motion.div
+      className="relative w-full h-full"
+      animate={{ rotateY: flipped ? 180 : 0 }}
+      transition={{ duration: 0.6 }}
+      style={{ transformStyle: "preserve-3d" }}
+    >
+      {/* Front */}
+      <Card
+        className={`absolute inset-0 flex flex-col items-center justify-center rounded-xl shadow-xl bg-gradient-to-br ${gradient} text-gray-900 dark:text-gray-100 transition-all duration-300 select-none dark:bg-gradient-to-br dark:from-[#23272f] dark:to-[#1a1d23]`}
+        style={{ backfaceVisibility: "hidden" }}
+      >
+        <span className="text-4xl mb-2">
+          {icon}
+        </span>
+        <div className="font-bold text-lg mb-1">{title}</div>
+        <div className="text-sm text-gray-700 dark:text-gray-200 text-center">{summary}</div>
+        <div className="mt-4 text-xs text-black dark:text-black-200">Click to see more</div>
+      </Card>
+      {/* Back */}
+      <Card
+        className={`absolute inset-0 flex flex-col items-center justify-center rounded-xl shadow-xl bg-gradient-to-br ${gradient} text-gray-900 dark:text-gray-100 transition-all duration-300 select-none dark:bg-gradient-to-br dark:from-[#23272f] dark:to-[#1a1d23]`}
+        style={{ transform: "rotateY(180deg)", backfaceVisibility: "hidden" }}
+      >
+        <div className="font-bold text-lg mb-2">{title} Details</div>
+        <div className="text-base text-center px-2 text-black dark:text-gray-200">{details}</div>
+        <div className="mt-4 text-xs text-black dark:text-black-800">Click to flip back</div>
+      </Card>
+    </motion.div>
+  </motion.div>
+);
 
-const AI: React.FC<AIProps> = () => {
-  const [selectedTab, setSelectedTab] = useState("Today");
-  const insights = selectedTab === "Today" ? todayInsights : yesterdayInsights;
+const useResponsiveCards = () => {
+  // 1 card on mobile, 2 on desktop
+  const [isMobile, setIsMobile] = useState(false);
+  React.useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile ? 1 : 2;
+};
+
+const AI: React.FC = () => {
+  const cardsPerView = useResponsiveCards();
+  const [startIdx, setStartIdx] = useState(0);
+  const [flippedStates, setFlippedStates] = useState(Array(insights.length).fill(false));
+  const [direction, setDirection] = useState(0); // 1 for next, -1 for prev
+  const endIdx = Math.min(startIdx + cardsPerView, insights.length);
+  const canPrev = startIdx > 0;
+  const canNext = endIdx < insights.length;
+
+  const handlePrev = () => {
+    setDirection(-1);
+    setStartIdx(idx => Math.max(0, idx - cardsPerView));
+  };
+  const handleNext = () => {
+    setDirection(1);
+    setStartIdx(idx => Math.min(insights.length - cardsPerView, idx + cardsPerView));
+  };
+
+  // Reset flip state when cards change
+  React.useEffect(() => {
+    setFlippedStates(Array(insights.length).fill(false));
+  }, [startIdx, cardsPerView]);
+
+  const setFlipped = (idx: number) => (val: boolean | ((f: boolean) => boolean)) => {
+    setFlippedStates(prev => {
+      const arr = [...prev];
+      arr[startIdx + idx] = typeof val === 'function' ? val(arr[startIdx + idx]) : val;
+      return arr;
+    });
+  };
 
   return (
-    <Card className="mt-6 w-full min-w-0 text-left bg-gray-100 shadow-2xl rounded-2xl hover:-translate-y-1 transition-all duration-200 hover:shadow-2xl" style={{ backgroundImage: 'linear-gradient(135deg,rgb(199, 211, 237) 0px,rgb(184, 197, 223) 8px,rgb(184, 196, 220) 8px,rgb(190, 202, 227) 16px)' }}>
-      <CardHeader className="text-left">
-        <CardTitle className="text-center text-3xl font-bold">AI Insights</CardTitle>
-        {/* Compare Toggle */}
-        <div className="flex justify-center mt-4 mb-2">
-          <div className="relative flex bg-white rounded-full shadow-inner p-0.5 w-40 h-8">
-            {compareTabs.map(tab => (
-              <button
-                key={tab}
-                className={`flex-1 px-2 py-1 rounded-full z-10 font-semibold text-sm transition-colors duration-200 ${selectedTab === tab ? 'text-blue-700' : 'text-gray-500'}`}
-                onClick={() => setSelectedTab(tab)}
-                style={{ position: 'relative' }}
-              >
-                {tab}
-                {selectedTab === tab && (
-                  <motion.div
-                    layoutId="compareToggle"
-                    className="absolute inset-0 bg-blue-100 rounded-full -z-10"
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                  />
-                )}
-              </button>
-            ))}
-          </div>
+    <div className="w-full mt-6">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="text-center text-2xl font-bold mb-6 flex items-center justify-center gap-2">
+          <span>🤖</span> AI Insights
         </div>
-    </CardHeader>
-      <CardContent className="text-left">
-        <AnimatePresence mode="wait">
-          <motion.ul
-            key={selectedTab}
-            className="list-disc pl-6 space-y-1 text-bold text-xl text-left"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-          >
-            {insights.map((insight, i) => (
-          <li key={i}>{insight}</li>
-        ))}
-          </motion.ul>
-        </AnimatePresence>
-    </CardContent>
-  </Card>
-);
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-items-center">
+          <AnimatePresence mode="wait" initial={false}>
+            {insights.slice(startIdx, endIdx).map((insight, i) => (
+              <FlipCard
+                key={startIdx + i}
+                animateKey={startIdx + i}
+                {...insight}
+                flipped={flippedStates[startIdx + i]}
+                setFlipped={setFlipped(i)}
+                direction={direction}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
+        <div className="flex justify-center gap-4 mt-6">
+          <Button onClick={handlePrev} disabled={!canPrev} variant="secondary" size="sm" aria-label="Previous insights">
+            Previous
+          </Button>
+          <Button onClick={handleNext} disabled={!canNext} variant="secondary" size="sm" aria-label="Next insights">
+            Next
+          </Button>
+        </div>
+      </motion.div>
+    </div>
+  );
 };
 
 export default AI; 

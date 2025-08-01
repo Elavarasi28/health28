@@ -8,11 +8,11 @@ interface HeartRateProps {
 }
 
 const HeartRate: React.FC<HeartRateProps> = ({ heartRateData, lineStroke }) => (
-  <Card className="h-80 flex flex-col w-full min-w-0 shadow-xl hover:-translate-y-1 transition-all duration-200 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
+  <Card className="h-80 flex flex-col w-full min-w-0 shadow-xl hover:-translate-y-1 transition-all duration-200 bg-white dark:bg-gradient-to-r from-gray-800 to-zinc-800 border border-gray-200 dark:border-zinc-800">
     <CardHeader>
       <CardTitle>Heart Rate</CardTitle>
     </CardHeader>
-    <CardContent className="flex-1 flex items-center w-full min-w-0">
+    <CardContent className="flex-1 flex items-center w-full min-w-0 dark:bg-gradient-to-r from-gray-800 to-zinc-800">
       <ResponsiveContainer width="100%" height="90%">
         <LineChart data={heartRateData}>
           <CartesianGrid strokeDasharray="3 3" />

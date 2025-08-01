@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import "./App.css";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -158,11 +158,13 @@ export default function App() {
           searchValue={searchValue}
           setSearchValue={setSearchValue}
           selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
           setShowCustomizeModal={setShowCustomizeModal}
           setShowDateModal={setShowDateModal}
           showCustomizeModal={showCustomizeModal}
           visibleSections={visibleSections}
           handleSectionToggle={handleSectionToggle}
+          setToast={setToast}
         />
 
         <div className="flex flex-1 flex-col md:flex-row overflow-hidden bg-sidebar">
@@ -176,10 +178,12 @@ export default function App() {
             setShowCustomizeModal={setShowCustomizeModal}
             setShowLoginModal={setShowLoginModal}
             setShowProfileModal={setShowProfileModal}
+            setShowDateModal={setShowDateModal}
+            selectedDate={selectedDate}
           />
 
           {/* Main Content */}
-          <main className="flex-1 p-2 sm:p-4 md:p-6 overflow-y-auto space-y-2 bg-gray-200 dark:bg-[#18181b]">
+          <main className="flex-1 p-2 sm:p-4 md:p-6 pb-8 overflow-y-auto space-y-3 bg-gray-200 dark:bg-[#18181b]">
             <AnimatePresence mode="wait">
               <motion.div
                 key={location.pathname}
@@ -198,23 +202,23 @@ export default function App() {
                       careTeam={careTeam}
                       searchValue={searchValue}
                       visibleSections={visibleSections}
+                      selectedDate={selectedDate}
                       setShowFitnessModal={setShowFitnessModal}
                       setShowCareTeamModal={setShowCareTeamModal}
                       setSelectedMember={setSelectedMember}
                       handleTake={handleTake}
                       handleSectionToggle={handleSectionToggle}
                       width={width}
-
                       showScheduleModal={showScheduleModal}
                     />
                   } />
-                  <Route path="/medications" element={<MedicationsPage />} />
-                  <Route path="/challenges" element={<ChallengesPage />} />
-                  <Route path="/health-insights" element={<HealthInsightsPage />} />
-                  <Route path="/appointments" element={<AppointmentsPage />} />
-                  <Route path="/notifications" element={<NotificationsPage />} />
-                  
-              <Route path="*" element={<div className="p-8 text-2xl">Welcome! Please select a section from the sidebar.</div>} />
+                  <Route path="/medications" element={<MedicationsPage searchValue={searchValue} />} />
+                  <Route path="/challenges" element={<ChallengesPage searchValue={searchValue} />} />
+                  <Route path="/health-insights" element={<HealthInsightsPage searchValue={searchValue} />} />
+                  <Route path="/appointments" element={<AppointmentsPage searchValue={searchValue} />} />
+                  <Route path="/notifications" element={<NotificationsPage searchValue={searchValue} />} />
+                  {/* Redirect all other routes to /dashboard */}
+                  <Route path="" element={<Navigate to="/dashboard" replace />} />
             </Routes>
               </motion.div>
             </AnimatePresence>

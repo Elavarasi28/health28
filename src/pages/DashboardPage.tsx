@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+  import React, { useState } from "react";
+import { useDateStore } from "@/store/useDateStore";
 import Welcome from "./dashboard/Welcome";
 import Fitness from "./dashboard/Fitness";
 import BloodGlucose from "./dashboard/BloodGlucose";
@@ -6,6 +7,7 @@ import MyCareTeam from "./dashboard/MyCareTeam";
 import MedicationSchedule from "./dashboard/MedicationSchedule";
 import { Cloud } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+
 
 // Custom Tooltip for Recharts
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -35,9 +37,13 @@ const CustomBar = (props: any) => {
   const barRadius = width / 2; // fully rounded
   // Responsive cloud size: smaller on small screens
   const isSmallScreen = typeof window !== 'undefined' && window.innerWidth < 640;
-  const cloudRadius = isSmallScreen ? 10 : 14;
-  const cloudIconSize = isSmallScreen ? 14 : 20;
-  const cloudYOffset = isSmallScreen ? 8 : 14;
+  const isMediumScreen = typeof window !== 'undefined' && window.innerWidth >= 640 && window.innerWidth < 1024;
+  const isLargeScreen = typeof window !== 'undefined' && window.innerWidth >= 1024;
+  
+  // More granular responsive sizing
+  const cloudRadius = isSmallScreen ? 8 : isMediumScreen ? 12 : 16;
+  const cloudIconSize = isSmallScreen ? 12 : isMediumScreen ? 16 : 20;
+  const cloudYOffset = isSmallScreen ? 6 : isMediumScreen ? 10 : 14;
   const cloudY = y - 32;
   return (
     <g>
@@ -62,6 +68,7 @@ interface DashboardPageProps {
   careTeam: any[];
   searchValue: string;
   visibleSections: any;
+  selectedDate: string;
   setShowFitnessModal: (show: boolean) => void;
   setShowScheduleModal: (show: boolean) => void;
   setShowCareTeamModal: (show: boolean) => void;
@@ -76,11 +83,12 @@ const DashboardPage: React.FC<DashboardPageProps> = (props) => {
   // const [user, setUser] = useState({ name: '', email: '', avatar: '' });
   const { user, medications: initialMedications, careTeam: initialCareTeam, searchValue: initialSearchValue, visibleSections, setShowFitnessModal, setShowScheduleModal, setShowCareTeamModal, setSelectedMember, width, showScheduleModal } = props;
   const [medications, setMedications] = useState([
-    { name: "Metformin", qty: "1 pill", dosage: "500 mg", status: "Missed", time: "12:30" },
-    { name: "Omega 3", qty: "3 pills", dosage: "800 mg", status: "Taken", time: "08:00" },
-    { name: "Levothyroxine", qty: "2 pills", dosage: "50 mg", status: "Upcoming", time: "18:00" },
-    { name: "Aspirin", qty: "1 pill", dosage: "100 mg", status: "Taken", time: "09:00" },
-    { name: "Atorvastatin", qty: "1 pill", dosage: "20 mg", status: "Upcoming", time: "21:00" },
+    { name: "Metformin", qty: "1 ", dosage: "500 mg", status: "Missed", time: "12:30" },
+    { name: "Omega 3", qty: "3 ", dosage: "800 mg", status: "Taken", time: "08:00" },
+    { name: "Levothyroxine", qty: "2 ", dosage: "50 mg", status: "Upcoming", time: "18:00" },
+    { name: "Aspirin", qty: "1 ", dosage: "100 mg", status: "Taken", time: "09:00" },
+    { name: "Atorvastatin", qty: "1 ", dosage: "20 mg", status: "Upcoming", time: "21:00" },
+    
   ]);
   const [careTeam, setCareTeam] = useState([
     {
@@ -94,10 +102,22 @@ const DashboardPage: React.FC<DashboardPageProps> = (props) => {
         "Please remember to update your glucose log."
       ]
     },
+    {
+      name: "Dr. John Doe",
+      role: "General Practitioner",
+      img: "https://randomuser.me/api/portraits/men/35.jpg",
+      badge: 1,
+      unread: true,
+      messages: [
+        "Your next appointment is on Thurs at 10am.",
+        
+      ]
+    },
     { name: "Phillip Workman", role: "Neurologist", img: "https://randomuser.me/api/portraits/men/45.jpg" },
     { name: "Cheyenne Herwitz", role: "Cardiologist", img: "https://randomuser.me/api/portraits/women/65.jpg" },
     { name: "Ava Patel", role: "General Physician", img: "https://randomuser.me/api/portraits/women/68.jpg" },
     { name: "Sophia Lee", role: "Nutritionist", img: "https://randomuser.me/api/portraits/women/50.jpg" },
+    
   ]);
   const [searchValue, setSearchValue] = useState("");
   const [statusFilter, setStatusFilter] = useState('any');
@@ -123,10 +143,11 @@ const DashboardPage: React.FC<DashboardPageProps> = (props) => {
 
   const filteredMedications = medications.filter(
     med =>
-      med.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+      (statusFilter === 'any' || med.status === statusFilter) &&
+      (med.name.toLowerCase().includes(searchValue.toLowerCase()) ||
       med.dosage.toLowerCase().includes(searchValue.toLowerCase()) ||
       med.status.toLowerCase().includes(searchValue.toLowerCase()) ||
-      med.time.toLowerCase().includes(searchValue.toLowerCase())
+      med.time.toLowerCase().includes(searchValue.toLowerCase()))
   );
 
   const filteredCareTeam = careTeam.filter(
@@ -149,6 +170,10 @@ const DashboardPage: React.FC<DashboardPageProps> = (props) => {
     ));
   };
 
+  // Global selectedDate from Zustand store
+  const selectedDate = useDateStore(state => state.selectedDate);
+  // You can now use selectedDate anywhere in this component or pass it to children as needed.
+
   return (
     <>
       <Welcome user={user} setShowScheduleModal={setShowScheduleModal} />
@@ -162,7 +187,7 @@ const DashboardPage: React.FC<DashboardPageProps> = (props) => {
         )}
       </section>
       {/* My Care Team and Medication Schedule */}
-      <section className="flex flex-col lg:flex-row gap-2 w-full">
+      <section className="flex flex-col lg:flex-row gap-2 w-full mb-6">
         {visibleSections.careTeam && (
           <MyCareTeam filteredCareTeam={filteredCareTeam} setSelectedMember={setSelectedMember} setShowCareTeamModal={setShowCareTeamModal} />
         )}
@@ -175,6 +200,8 @@ const DashboardPage: React.FC<DashboardPageProps> = (props) => {
           />
         )}
       </section>
+      {/* Bottom spacing to ensure page is fully visible */}
+      <div className="h-4"></div>
       <AnimatePresence>
         {showScheduleModal && (
           <motion.div

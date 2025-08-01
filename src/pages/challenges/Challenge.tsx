@@ -93,7 +93,7 @@ const ChallengeTab: React.FC<ChallengeTabProps> = ({
                           size="sm"
                           variant="outline"
                           onClick={() => handleLeaveChallenge(challenge.id)}
-                          className="text-red-600 border-red-600 hover:bg-red-50"
+                          className="text-red-600 border-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                         >
                           Leave
                         </Button>
@@ -101,6 +101,7 @@ const ChallengeTab: React.FC<ChallengeTabProps> = ({
                           size="sm"
                           onClick={() => handleUpdateProgress(challenge.id, challenge.current + 1)}
                           disabled={challenge.current >= challenge.target}
+                          className="hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black"
                         >
                           Update Progress
                         </Button>
@@ -109,6 +110,7 @@ const ChallengeTab: React.FC<ChallengeTabProps> = ({
                       <Button
                         size="sm"
                         onClick={() => handleJoinChallenge(challenge.id)}
+                        className="hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black"
                       >
                         Join Challenge
                       </Button>

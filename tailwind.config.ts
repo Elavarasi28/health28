@@ -8,9 +8,11 @@ const config: Config = {
   theme: {
     extend: {
       animation: {
-        'spin-slow': 'spin 4s linear infinite',
-      },
-    },
+        'spin-slow': 'spin 6s linear infinite',
+      }
+    }
+
+    
   },
   plugins: [],
 }

@@ -18,7 +18,11 @@ function useWindowWidth() {
   return width;
 }
 
-const HealthInsightsPage = () => {
+interface HealthInsightsPageProps {
+  searchValue: string;
+}
+
+const HealthInsightsPage: React.FC<HealthInsightsPageProps> = ({ searchValue }) => {
   const width = useWindowWidth();
   let barSize = 16;
   if (width < 500) barSize = 8;
@@ -78,13 +82,20 @@ const HealthInsightsPage = () => {
     { key: "steps", label: "Steps" }
   ];
 
+  const filteredInsightCards = insightCards.filter(card =>
+    card.label.toLowerCase().includes(searchValue.toLowerCase())
+  );
   
+  const filteredAIInsights = aiInsights.filter(insight =>
+    insight.toLowerCase().includes(searchValue.toLowerCase())
+  );
 
   return (
     <div className="p-4 space-y-6 max-w-7xl mx-auto w-full max-w-full min-w-0 overflow-x-hidden">
       <Health compare={compare} setCompare={setCompare} dateRange={dateRange} setDateRange={setDateRange} />
       {/* Graphs */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-full min-w-0 overflow-x-hidden">
+        {filteredInsightCards.some(card => card.key === "blood") && (
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -92,6 +103,8 @@ const HealthInsightsPage = () => {
         >
           <Blood glucoseData={glucoseData} barSize={barSize} />
         </motion.div>
+        )}
+        {filteredInsightCards.some(card => card.key === "heart") && (
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -99,6 +112,8 @@ const HealthInsightsPage = () => {
         >
           <HeartRate heartRateData={heartRateData} lineStroke={lineStroke} />
         </motion.div>
+        )}
+        {filteredInsightCards.some(card => card.key === "sleep") && (
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -106,6 +121,8 @@ const HealthInsightsPage = () => {
         >
           <Sleep sleepData={sleepData} lineStroke={lineStroke} />
         </motion.div>
+        )}
+        {filteredInsightCards.some(card => card.key === "steps") && (
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -113,13 +130,14 @@ const HealthInsightsPage = () => {
         >
           <Steps stepsData={stepsData} barSize={barSize} />
         </motion.div>
+        )}
       </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.5 }}
       >
-        <AI aiInsights={aiInsights} />
+        <AI aiInsights={filteredAIInsights} />
       </motion.div>
     </div>
   );

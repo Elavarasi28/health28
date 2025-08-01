@@ -11,7 +11,7 @@ interface BloodGlucoseProps {
 
 const BloodGlucose: React.FC<BloodGlucoseProps> = ({ glucoseData, barSize, CustomTooltip, CustomBar }) => (
   <div className="flex-1 min-w-0 mb-2 lg:mb-0">
-    <Card className="w-full h-80 px-2 shadow-2xl hover:-translate-y-1 transition-all duration-200 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
+    <Card className="w-full h-80 px-2 shadow-2xl hover:-translate-y-1 transition-all duration-200 bg-white text-black dark:bg-gradient-to-r from-gray-800 to-zinc-800 dark:text-white border border-gray-200 dark:border-zinc-800">
       <CardHeader>
         <div className="flex items-center justify-between w-full">
           <CardTitle>Blood Glucose Trends</CardTitle>
