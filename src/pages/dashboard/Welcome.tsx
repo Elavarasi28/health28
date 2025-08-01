@@ -14,7 +14,7 @@ const Welcome: React.FC<WelcomeProps> = ({ user, setShowScheduleModal }) => {
         
         {/* Row 1: Welcome Text */}
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center lg:text-left">
-          Welcome, {user.name || "Guest"}!
+          hi, {user.name || "Guest"}!
         </h1>
 
         {/* Row 2: Stats + Schedule Button */}
